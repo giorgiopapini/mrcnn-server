@@ -21,6 +21,8 @@ import uvicorn
 
 # https://dev.to/rajshirolkar/fastapi-over-https-for-development-on-windows-2p7d
 
+# Render dashboard https://dashboard.render.com/web/srv-cgcvglndvk4htnqm38rg/deploys/dep-cgd05je4dad6fr7vbhkg
+
 
 app = FastAPI(
     title="WoundDetector"
