@@ -25,6 +25,7 @@ import uvicorn
 app = FastAPI(
     title="WoundDetector"
 )
+models.load_mrcnn_model()
 
 
 api_key_query = APIKeyQuery(name="api-key", auto_error=False)
@@ -135,13 +136,7 @@ async def calculate_wounds_from_inserted_mask_image(
     return models.get_wounds_from_mask_file(file, ratio)
 
 
-if __name__ == '__main__':
-    models.load_mrcnn_model()
-    uvicorn.run(app, host='0.0.0.0', port=8000)
-
-
 # API produce le maschere, il server della WEBAPP le salva nel local storage
-
 
 
 # https://fastapi.tiangolo.com/tutorial/query-params/
