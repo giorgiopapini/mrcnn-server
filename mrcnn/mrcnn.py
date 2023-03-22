@@ -28,7 +28,7 @@ class MRCNN:
 
     @staticmethod
     def predict_mask(img: np.ndarray) -> np.ndarray:
-        img = ImageResizer.get_formatted_img(img, MRCNN.IMAGE_SIZE)  # It resizes the image to match the IMAGE_SIZE
+        img = ImageResizer.try_format_img(img, MRCNN.IMAGE_SIZE)  # It resizes the image to match the IMAGE_SIZE
         data_gen = DataGen(x=MRCNN.IMAGE_SIZE, y=MRCNN.IMAGE_SIZE)
         image_batch = data_gen.generate_batch(img)
         prediction = MRCNN.model.predict(image_batch, verbose=1)

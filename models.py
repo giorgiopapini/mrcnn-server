@@ -6,6 +6,7 @@ from custom.mask_image import MaskImage
 from custom.classes import Wound
 from custom.functions import get_img_from_file, get_mask_image_from_file
 from mrcnn.mrcnn import MRCNN
+from image_resizer.image_resizer import ImageResizer
 
 
 def load_mrcnn_model() -> None:
@@ -27,8 +28,13 @@ def get_grabcut_mask_img(file, api_key: str) -> MaskImage:
     masks_manager = define_mask_manager(file, api_key)
     return masks_manager.get_grabcut()
 
-def get_grabcut_from_mask(file, mask_image: MaskImage) -> MaskImage:
-    ...
+def get_grabcut_from_mask(file, mask_image) -> MaskImage:
+    raw_img = get_img_from_file(file)
+    resized_img = ImageResizer.try_format_img(raw_img, MRCNN.IMAGE_SIZE)
+    resized_mask_image = ImageResizer.try_format_img(get_mask_image_from_file(mask_image), MRCNN.IMAGE_SIZE)
+    raw_mask = GrabCut.get_refined_mask(resized_img, resized_mask_image)
+    grabcut_mask = MaskImage(ImageResizer.resize_mask_to_original_size(raw_img, raw_mask))
+    return grabcut_mask
 
 def get_mrcnn_and_grabcut_masks_img(file, api_key: str) -> Tuple[MaskImage, MaskImage]:
     mask_manager = define_mask_manager(file, api_key)

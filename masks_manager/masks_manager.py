@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 from typing import Tuple
-
 from mrcnn.mrcnn import MRCNN
 from grabcut.grabcut import GrabCut
 from image_resizer.image_resizer import ImageResizer
@@ -22,7 +21,7 @@ class MasksManager:
 
     def __get_mrcnn_compatible_img(self) -> np.ndarray:
         if self.img is not None:
-            return ImageResizer.get_formatted_img(self.img, MRCNN.IMAGE_SIZE)
+            return ImageResizer.try_format_img(self.img, MRCNN.IMAGE_SIZE)
         return np.array(...)
 
     def get_mrcnn(self) -> MaskImage:
@@ -50,5 +49,7 @@ class MasksManager:
 
     def __create_mrcnn_and_grabcut_mask(self) -> Tuple[np.ndarray, np.ndarray]:
         mrcnn_mask = self.__create_mrcnn_mask()
+        print(mrcnn_mask.shape)
+        print(self.mrcnn_compatible_img.shape)
         grabcut_mask = GrabCut.get_refined_mask(self.mrcnn_compatible_img, mrcnn_mask)
         return mrcnn_mask, grabcut_mask

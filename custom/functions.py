@@ -3,6 +3,7 @@ from PIL import Image, ImageOps
 from io import BytesIO
 import cv2
 
+
 def get_img_from_file(file) -> np.ndarray:
     data = file.file.read()
     image = Image.open(BytesIO(data))

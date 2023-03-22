@@ -1,11 +1,10 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Security
 from fastapi.security import APIKeyQuery
 from fastapi.responses import StreamingResponse
-from typing import List
+from typing import List, Optional
 from custom.classes import Wound, Mask
 from custom.responses import MultipleModelsWoundsResponse, MultipleModelsMasksResponse
 import models
-import uvicorn
 
 
 # IMPORTANTE!! --> Capire come accettare anche immagini di tipo .jpg
@@ -23,6 +22,12 @@ import uvicorn
 
 # Render dashboard https://dashboard.render.com/web/srv-cgcvglndvk4htnqm38rg/deploys/dep-cgd05je4dad6fr7vbhkg
 
+# IMPORTANTE!!! --> Render web server fallisce perché ha max 500 mb di RAM, questa API in fase di startup ne usa molti di piú
+#                   Capire come poter risolvere il problema (o é possibile mettere un tetto alla RAM usata, a discapito del tempo
+#                   di startup, oppure é necessario trovare un nuovo metodo di hosting)
+
+
+# uvicorn api:app --host 0.0.0.0 --port 8000 --reload
 
 app = FastAPI(
     title="WoundDetector"
@@ -137,6 +142,14 @@ async def calculate_wounds_from_inserted_mask_image(
 ) -> List[Wound]:
     return models.get_wounds_from_mask_file(file, ratio)
 
+@app.post("/custom-mask/grabcut-mask")
+async def calculate_grabcut_mask_from_custom_mask(
+    api_key: str = Security(verify_api_key),
+    file: UploadFile = File(...),
+    mask: UploadFile = File(...)
+) -> StreamingResponse:  
+    grabcut_mask = models.get_grabcut_from_mask(file, mask)
+    return StreamingResponse(grabcut_mask.to_bytes(), media_type="image/png")
 
 # API produce le maschere, il server della WEBAPP le salva nel local storage
 
