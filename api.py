@@ -1,40 +1,115 @@
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Security
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Security, Request, Body
 from fastapi.security import APIKeyQuery
-from fastapi.responses import StreamingResponse
-from typing import List, Optional
-from custom.classes import Wound, Mask
+from fastapi.responses import RedirectResponse, StreamingResponse
+from typing import List
+from custom.classes import User, Wound, Mask
 from custom.responses import MultipleModelsWoundsResponse, MultipleModelsMasksResponse
+from starlette.templating import Jinja2Templates
 import models
+import database
+import functools
 
 
 # IMPORTANTE!! --> Capire come accettare anche immagini di tipo .jpg
 
 # IMPORTANTE!! --> Per salvare i dati posso usare delle HASHING FUNCTION, rendono il contenuto illeggibile, però unico.
 # in questo modo, quando un api_token viene inviato, il suo hash viene confrontato con gli hash presenti nel db, se esiste allora
-# procede 
+# procede????? (fare davvero in questo modo??)
 
-# IMPORTANTE!! --> Inviare l'API KEY in chiaro in questo modo nel link non è ottimale, probabilmente (JWT) potrebbe servire per 
-# mascherare la key --> IN REALTA' SE NE OCCUPA (https) DI MASCHERARE E CIFRARE LA COMUNICAZIONE, JWT NON MI SERVE PER L'API
 
-# IMPORTANTE!! --> Valutare se eliminare le immagini una volta inviata la response all'utente
+# IMPORTANTE!! --> Eliminare le immagini una volta inviata la response all'utente
 
 # https://dev.to/rajshirolkar/fastapi-over-https-for-development-on-windows-2p7d
 
-# Render dashboard https://dashboard.render.com/web/srv-cgcvglndvk4htnqm38rg/deploys/dep-cgd05je4dad6fr7vbhkg
 
-# IMPORTANTE!!! --> Render web server fallisce perché ha max 500 mb di RAM, questa API in fase di startup ne usa molti di piú
-#                   Capire come poter risolvere il problema (o é possibile mettere un tetto alla RAM usata, a discapito del tempo
-#                   di startup, oppure é necessario trovare un nuovo metodo di hosting)
+# IMPORTANTE!!! --> Creare endpoint che ritorni il rapporto pixel cm data un'immagine contenente un aruco marker, e le dimensioni
+#                   dell'aruco marker e il tipo di aruco marker --> Da valutare il fatto che le immagini possono essere 
+#                   "resized" in fase di visualizzazione, e quindi il rapporto cm/pixel cambierebbe
 
 
 # uvicorn api:app --host 0.0.0.0 --port 8000 --reload
 
+templates = Jinja2Templates(directory="templates")
+
 app = FastAPI(
     title="WoundDetector"
 )
-models.load_mrcnn_model()
+#models.load_mrcnn_model()
 
 
+# UI enpoints
+def protected_route(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        user = database.get_current_user()
+        if user:
+            return func(*args, **kwargs)
+        else:
+            return RedirectResponse(url="/sign-in")
+    return wrapper
+
+
+
+@app.get("/home", include_in_schema=False)
+def home(request: Request):
+    return templates.TemplateResponse("homepage.html", {"request": request})
+
+@app.get("/sign-in", include_in_schema=False)
+def sign_in_get(request: Request):
+    return templates.TemplateResponse("sign-in.html", {"request": request})
+
+@app.post("/sign-in", include_in_schema=False)
+def sign_in(request: Request, email: str = Form(...), password: str = Form(...)):
+    if not database.try_sign_in(email, password):
+        raise HTTPException(status_code=302, detail='Wrong credentials')
+
+@app.get("/sign-up", include_in_schema=False)
+def sign_up_get(request: Request):
+    return templates.TemplateResponse("sign-up.html", {"request": request})
+
+@app.post("/sign-up", include_in_schema=False)
+def sign_up(request: Request, user: User):  # https://github.com/orgs/supabase/discussions/3491 (adding first_name, ..., to profiles when creating a new auth.user row)
+    if not database.try_sign_up(user):
+        raise HTTPException(status_code=302, detail='Could not sign up')
+
+@app.get("/recover", include_in_schema=False)
+def recover(request: Request):
+    return templates.TemplateResponse("recover.html", {"request": request})
+
+@app.get("/update-password", include_in_schema=False)
+def update_password_get(request: Request):
+    return templates.TemplateResponse("update-password.html", {"request": request})
+
+@app.post("/update-password", include_in_schema=False)
+def update_password_post(request: Request, body: dict = Body(...)):
+    access_token: str = body["access_token"]
+    password: str = body["password"]
+    if not database.try_update_password(access_token, password):
+        raise HTTPException(status_code=404, detail="Could not update password")
+
+@app.post("/send-recovery-email", include_in_schema=False)
+def send_recovery_email(request: Request, email: str = Form(...)):
+    if not database.try_send_recovery_email(email):
+        raise HTTPException(status_code=404, detail="Email does not exist")
+
+@app.get("/check-email", include_in_schema=False)
+def check_email(request: Request):
+    return templates.TemplateResponse("check-email.html", {"request": request})
+
+@app.get("/success", include_in_schema=False)
+def success(request: Request):
+    return templates.TemplateResponse("success.html", {"request": request})
+
+@app.get("/profile", include_in_schema=False)
+@protected_route
+def profile(request: Request):
+    return templates.TemplateResponse("profile.html", {"request": request})
+        
+
+
+
+
+# API endpoints
 api_key_query = APIKeyQuery(name="api-key", auto_error=False)
 
 def verify_api_key(api_key: str = Security(api_key_query)) -> str:

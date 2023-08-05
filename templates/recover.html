@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Forgot your password</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <script>
+            document.addEventListener("DOMContentLoaded", (event) => {
+                document.getElementById("recover-form").addEventListener("submit", function (e) {
+                    e.preventDefault(); // Cancel the default action
+                    submitForm();
+                });
+            });
+
+            
+        </script>
+        <style>
+            html, body {
+              height: 100%;
+            }
+            body {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+
+          </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-10 col-md-8 col-lg-4">
+                    <div class="card" style="border-radius: 20px;">
+                        <div class="card-body">
+                            <div class="mt-4 mb-4 text-center">
+                                <img class="mb-2" src="data:image/png;base64,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">
+                                <h4>Forgot your password?</h4>
+                                <p class="mx-4" style="color: grey;">Enter the email address associated with your account and we will send you a link to reset your password</p>
+                                <div class="container">
+                                    <form id="recover-form" class="mt-5" action="/send-recovery-email" method="post">
+                                        <input type="email" placeholder="you@yourdomain.com" name="email" class="form-control" style="text-align: center;" onclick="manageErrorAlert();" aria-describedby="emailHelp">
+                                        <button id="submit-btn" type="submit" class="btn btn-primary mt-3" style="width: 100%;">Submit</button>
+                                    </form>
+                                    <div id="error-alert" class="alert alert-danger mt-4" hidden >
+                                        User not found
+                                    </div>
+                                    <div id="success-alert" class="alert alert-success mt-4" hidden >
+                                        Email sent!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+
+        function submitForm() {
+            var formElement = document.getElementById('recover-form');
+            var data = new FormData(formElement);
+            fetch('/send-recovery-email', {
+                    method: 'POST',
+                    body: data,
+                })
+                .then(response => manageResponse(response.status));
+        }
+
+        function manageResponse(status) {
+            if (status === 404) {
+                document.getElementById("error-alert").hidden = false;
+            }
+            else if (status === 200) {
+                showSuccessAlert();
+            }
+        }
+
+        function manageErrorAlert() {
+            let alert = document.getElementById("error-alert");
+            if (!alert.hidden) {
+                alert.hidden = true;
+            }
+        }
+
+        function showSuccessAlert() {
+            document.getElementById("success-alert").hidden = false;
+            document.getElementById("error-alert").hidden = true;
+            document.getElementById("submit-btn").hidden = true;   
+        }
+
+    </script>
+</html>

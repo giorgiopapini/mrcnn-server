@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sign Up</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <script src="https://kit.fontawesome.com/0806d4ce9d.js" crossorigin="anonymous"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", (event) => {
+                document.getElementById("registration-form").addEventListener("submit", function (e) {
+                    e.preventDefault(); // Cancel the default action
+                    submitForm();
+                });
+            });
+
+            
+        </script>
+        <style>
+            html, body {
+              height: 100%;
+            }
+            body {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+
+          </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-10 col-md-8 col-lg-4">
+                    <div class="card" style="border-radius: 20px;">
+                        <div class="card-body">
+                            <h2 class="card-title text-center mb-3 mt-3">Sign Up</h5>
+                            <div class="container mb-3">
+                                <form id="registration-form" action="/sign-up" method="post" >
+                                    <div class="row mb-3">
+                                        <div class="col-sm-12 col-md-6 order-sm-first">
+                                            <label class="form-label">First name</label>
+                                            <input type="text" name="first_name" class="form-control" >
+                                        </div>
+                                        <div class="col-sm-12 col-md-6">
+                                            <label class="form-label">Last name</label>
+                                            <input type="text" name="last_name" class="form-control" >
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email address</label>
+                                        <input type="email" name="email" class="form-control" aria-describedby="emailHelp" >
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Password</label>
+                                        <div class="input-group">
+                                            <input id="password" type="password" name="password" class="form-control">
+                                            <span class="input-group-text">
+                                                <i id="password-icon" class="fa-regular fa-eye-slash" id="togglePassword" style="cursor: pointer" onclick="managePasswordField();"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Confirm password</label>
+                                        <div class="input-group">
+                                            <input id="password_confirm" type="password" name="password_confirm" class="form-control">
+                                            <span class="input-group-text">
+                                                <i id="password-confirm-icon" class="fa-regular fa-eye-slash" id="togglePassword" style="cursor: pointer" onclick="managePasswordConfirmField();"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary mt-3" style="width: 100%;">Submit</button>
+                                    <p class="text-center mt-3" style="color: grey;">Alredy have an account? <a href="/sign-in">Sign in</a></p>
+                                </form>
+                                <div id="error-alert" class="alert alert-danger mt-4 text-center" hidden >
+                                    Wrong Data
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+    <script>
+
+        function submitForm() {
+            var formElement = document.getElementById('registration-form');
+            var data = new FormData(formElement);
+            const formObject = {};
+            
+            data.forEach((value, key) => {
+                formObject[key] = value;
+            });
+            console.log(JSON.stringify(formObject))
+        
+            if (checkFields(formObject)) {
+                fetch('/sign-up', {
+                    method: 'POST',
+                    body: JSON.stringify(formObject),
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                })
+                .then(response => manageResponse(response.status));
+            }
+            else {
+                document.getElementById("error-alert").hidden = false;
+            }
+        }
+
+        function checkFields(data) {
+            if (
+                data.password === data.password_confirm &&
+                validateEmail(data.email)
+            ) {
+                if (
+                    data.first_name !== "" &&
+                    data.last_name !== "" &&
+                    data.email !== "" &&
+                    data.password !== "" &&
+                    data.password_confirm !== ""
+                ) {
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        }
+
+        function validateEmail(email) {
+            return email.match(
+                /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            );
+        }
+
+        function manageResponse(status) {
+            if (status === 302) {
+                document.getElementById("error-alert").hidden = false;
+            }
+            else if (status === 200) {
+                location.href = "/check-email"; 
+            }
+        }
+
+        
+        function managePasswordField() {
+            let passwordField = document.getElementById("password");
+            let passwordIcon = document.getElementById("password-icon");
+
+            managePasswordVisibility(passwordField, passwordIcon);
+        }
+
+
+        function managePasswordConfirmField() {
+            let passwordConfirmField = document.getElementById("password_confirm");
+            let passwordConfirmIcon = document.getElementById("password-confirm-icon");
+
+            managePasswordVisibility(passwordConfirmField, passwordConfirmIcon)
+        }
+
+
+        function managePasswordVisibility(element, iconElement) {
+            const normalEyeClass = "fa-regular fa-eye"
+            const slashEyeClass = "fa-regular fa-eye-slash"
+
+            let type = element.getAttribute("type");
+            if (type === "password") {
+                element.setAttribute("type", "text");
+                iconElement.className = normalEyeClass;
+            }
+            else {
+                element.setAttribute("type", "password");
+                iconElement.className = slashEyeClass;
+            }
+        }
+
+    </script>
+</html>

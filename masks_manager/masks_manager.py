@@ -49,7 +49,5 @@ class MasksManager:
 
     def __create_mrcnn_and_grabcut_mask(self) -> Tuple[np.ndarray, np.ndarray]:
         mrcnn_mask = self.__create_mrcnn_mask()
-        print(mrcnn_mask.shape)
-        print(self.mrcnn_compatible_img.shape)
         grabcut_mask = GrabCut.get_refined_mask(self.mrcnn_compatible_img, mrcnn_mask)
         return mrcnn_mask, grabcut_mask

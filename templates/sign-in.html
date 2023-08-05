@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sign In</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <script src="https://kit.fontawesome.com/0806d4ce9d.js" crossorigin="anonymous"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", (event) => {
+                document.getElementById("login-form").addEventListener("submit", function (e) {
+                    e.preventDefault(); // Cancel the default action
+                    submitForm();
+                });
+            });
+
+            
+        </script>
+        <style>
+            html, body {
+              height: 100%;
+            }
+            body {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+
+          </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-10 col-md-8 col-lg-4">
+                    <div class="card" style="border-radius: 20px;">
+                        <div class="card-body">
+                            <h2 class="card-title text-center mb-3 mt-3">Sign In</h5>
+                            <div class="container mb-3">
+                                <form id="login-form" action="/sign-in" method="post" >
+                                    <div class="mb-3">
+                                        <label class="form-label">Email address</label>
+                                        <input type="email" name="email" class="form-control" aria-describedby="emailHelp" onclick="manageErrorAlert();">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Password</label>
+                                        <div class="input-group">
+                                            <input id="password" type="password" name="password" class="form-control" onclick="manageErrorAlert();">
+                                            <span class="input-group-text">
+                                                <i id="password-icon" class="fa-regular fa-eye-slash" id="togglePassword" style="cursor: pointer" onclick="managePasswordVisibility()"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary mt-3" style="width: 100%;">Submit</button>
+                                    <p class="text-center mt-4 mb-1" style="color: grey;">Forgot your password? <a href="/recover">Recover it</a></p>
+                                    <p class="text-center" style="color: grey;">Don't have an account? <a href="/sign-up">Sign up</a></p>
+                                    
+                                </form>
+                                <div id="error-alert" class="alert alert-danger mt-4" hidden >
+                                    Wrong Credentials
+                                </div>
+                            </div>        
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+
+        function submitForm() {
+            var formElement = document.getElementById('login-form');
+            var data = new FormData(formElement);
+            fetch('/sign-in', {
+                    method: 'POST',
+                    body: data,
+                })
+                .then(response => manageResponse(response.status));
+        }
+
+
+        function manageResponse(status) {
+            if (status === 302) {
+                document.getElementById("error-alert").hidden = false;
+            }
+            else if (status === 200) {
+                location.href = "/profile"
+            }
+        }
+
+
+        function manageErrorAlert() {
+            let alert = document.getElementById("error-alert");
+            if (!alert.hidden) {
+                alert.hidden = true;
+            }
+        }
+
+
+        function managePasswordVisibility() {
+            const normalEyeClass = "fa-regular fa-eye"
+            const slashEyeClass = "fa-regular fa-eye-slash"
+
+
+            let passwordField = document.getElementById("password");
+            let type = passwordField.getAttribute("type");
+            let passwordIcon = document.getElementById("password-icon");
+            
+            if (type === "password") {
+                passwordField.setAttribute("type", "text");
+                passwordIcon.className = normalEyeClass;
+            }
+            else {
+                passwordField.setAttribute("type", "password");
+                passwordIcon.className = slashEyeClass;
+            }
+        }
+
+    </script>
+</html>

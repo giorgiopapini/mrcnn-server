@@ -33,3 +33,9 @@ class Mask(BaseModel):
                 "area_px": 166125.5
             }
         }
+
+class User(BaseModel):
+    first_name: str
+    last_name: str
+    email: str = Field(exclude=True)
+    password: str = Field(exclude=True)
