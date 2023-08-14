@@ -1,0 +1,84 @@
+{% extends "basic-page.html" %}
+{% block page %}
+    <div class="container mt-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-4">
+            <div>
+                <p id="back-btn" class="small mb-2" style="opacity: 50%; color: black; cursor: pointer;">
+                    <i class="fa-solid fa-arrow-left me-2"></i>
+                    Back Home
+                </p>
+                    <h1 class="h5 my-1">{% block title %}{% endblock %}</h1>
+                </div>
+                <div id="sign-out-btn" class="d-flex gap-3">
+                    <a class="btn btn-light">
+                        <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Sign Out
+                    </a>
+                </div>
+            </div>
+    </div>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-lg-4 col-xl-3 mb-4 mb-lg-0">
+                <div class="card p-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                        <div class="text-break">
+                            <div class="fw-medium fs-5">
+                                GiorgioPapini
+                            </div>
+                            <div class="text-muted">
+                                giorgio.papini04@gmail.com
+                            </div>
+                        </div>
+                    <div class="d-block d-lg-none">
+                    <button class="btn btn-white" type="button" data-bs-toggle="collapse" data-bs-target="#asideNav" aria-controls="asideNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <i class="far fa-bars me-sm-1"></i>
+                        <span class="d-none d-sm-inline-block">Sidebar Menu</span>
+                    </button>
+                </div>
+            </div>
+            <nav class="navbar-expand-lg">
+                <div class="collapse navbar-collapse flex-column" id="asideNav">
+                    <hr class="w-100 mt-6 mb-2">
+                        <ul class="nav nav-pills nav-pills-flush flex-column w-100 gap-1 1px-n4">
+                            <li class="nav-item fw-medium text-uppercase small px-3 mt-4 mb-1">
+                                Account
+                            </li>
+                            <li class="nav-item">
+                                <a href="/account-overview" class="nav-link py-2 px-3">
+                                    <i class="fa-regular fa-user me-2"></i> Account Overview
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/account-settings" class="nav-link py-2 px-3">
+                                    <i class="fa-regular fa-user me-2"></i> Account Settings
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/api-keys" class="nav-link py-2 px-3">
+                                    <i class="fa-regular fa-user me-2"></i> API Keys
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        <div class="col-lg-8 col-xl-9">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script>
+
+        document.getElementById("back-btn").addEventListener("click", function() {
+            location.href = "/home";
+        })
+
+        document.getElementById("sign-out-btn").addEventListener("click", function() {
+            fetch('/sign-out', {method: 'POST',}).then(response => location.href = "/home");
+        })
+
+    </script>
+{% endblock %}

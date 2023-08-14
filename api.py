@@ -72,6 +72,11 @@ def sign_up(request: Request, user: User):  # https://github.com/orgs/supabase/d
     if not database.try_sign_up(user):
         raise HTTPException(status_code=302, detail='Could not sign up')
 
+@app.post("/sign-out", include_in_schema=False)
+def sign_out(request: Request):
+    if not database.try_sign_out():
+        raise HTTPException(status_code=302, detail='Could not sign out')
+    
 @app.get("/recover", include_in_schema=False)
 def recover(request: Request):
     return templates.TemplateResponse("recover.html", {"request": request})
@@ -100,10 +105,20 @@ def check_email(request: Request):
 def success(request: Request):
     return templates.TemplateResponse("success.html", {"request": request})
 
-@app.get("/profile", include_in_schema=False)
-@protected_route
-def profile(request: Request):
-    return templates.TemplateResponse("profile.html", {"request": request})
+@app.get("/account-overview", include_in_schema=False)
+#@protected_route
+def account_overview(request: Request):
+    return templates.TemplateResponse("account-overview.html", {"request": request})
+
+@app.get("/account-settings", include_in_schema=False)
+#@protected_route
+def account_settings(request: Request):
+    return templates.TemplateResponse("account-settings.html", {"request": request})
+
+@app.get("/api-keys", include_in_schema=False)
+#@protected_route
+def api_keys(request: Request):
+    return templates.TemplateResponse("api-keys.html", {"request": request})
         
 
 
