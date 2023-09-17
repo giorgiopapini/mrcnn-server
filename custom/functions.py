@@ -1,4 +1,5 @@
 import numpy as np
+import re
 from PIL import Image, ImageOps
 from io import BytesIO
 import cv2
@@ -23,3 +24,9 @@ def get_mask_image_from_file(file) -> np.ndarray:
     if len(image.shape) < 3:
         return image
     return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+def check_email_regex(email: str) -> bool:
+    regex = re.compile(r"([-!#-'*+/-9=?A-Z^-~]+(\.[-!#-'*+/-9=?A-Z^-~]+)*|\"([]!#-[^-~ \t]|(\\[\t -~]))+\")@([-!#-'*+/-9=?A-Z^-~]+(\.[-!#-'*+/-9=?A-Z^-~]+)*|\[[\t -Z^-~]*])")
+    if re.match(regex, email):
+        return True
+    return False

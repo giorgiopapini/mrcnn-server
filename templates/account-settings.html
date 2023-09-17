@@ -1,50 +1,211 @@
 {% extends "profile-template.html" %}
 {% block title %}Account Settings{% endblock %}
 {% block content %}
-    <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-header-title">Account Settings</h3>
+    <div class="card mb-4" style="border-radius: 15px;">
+        <div class="card-header d-flex justify-content-between align-items-center bg-transparent">
+            <h6 class="card-header-title mt-2">User Settings</h6>
         </div>
         <div class="card-body">
             <p>Below are the username, email and overview information for your account.</p>
-            <div class="row align-items-center">
+            <div class="row align-items-baseline">
                 <div class="col-md-4 text-muted mb-1 mb-md-0">
-                    <i class="far fa-user-circle fa-fw"></i> Your username:
+                    <i class="fa-regular fa-user me-2"></i> First Name
                 </div>
                 <div class="col-md-8">
-                    <strong>GiorgioPapini</strong>
-                </div>
-            </div>
-            <hr>
-            <div class="row align-items-center">
-                <div class="col-md-4 text-muted mb-1 mb-md-0">
-                    <i class="far fa-envelope fa-fw"></i> Your Email Address:
-                </div>
-                <div class="col-md-8">
-                    <div class="d-flex justify-content-between align-items-center my-n1">
-                        <strong>giorgio.papini04@gmail.com</strong>
-                        <a class="btn btn-sm btn-white" style="min-width: 6rem;" href="/mysettings">
-                            <i class="far fa-pen me-1"></i> Edit
-                        </a>
+                    <input id="first-name-field" type="text" value="{{ first_name }}" class="form-control py-2" placeholder="John">
                     </div>
                 </div>
-            </div>
             <hr>
-            <div class="row align-items-center">
+            <div class="row align-items-baseline">
                 <div class="col-md-4 text-muted mb-1 mb-md-0">
-                    <i class="far fa-sign-in fa-fw"></i> Last Login:
+                    <i class="fa-regular fa-user me-2"></i> Last Name
                 </div>
                 <div class="col-md-8">
-                    <div class="d-flex justify-content-between align-items-center my-n1">
-                        <span>
-                            <i class="far fa-clock me-1"></i><span id="showUtcLocalDate">2023-08-14 07:08:02 (UTC)</span>
+                    <input id="last-name-field" type="text" value="{{ last_name }}" class="form-control py-2" placeholder="Marston">
+                    </div>
+                </div>
+            <hr>
+            <div class="row align-items-baseline">
+                <div class="col-md-4 text-muted mb-1 mb-md-0">
+                    <i class="far fa-envelope fa-fw me-2"></i> Your Email Address
+                </div>
+                <div class="col-md-8">
+                    <input id="email-field" type="email" value="{{ email }}" class="form-control py-2" placeholder="john.marston@example.com">
+                    <div id="divEmail_Error" class="invalid-feedback" style="display:none;">Please enter your valid email address</div>
+                </div>
+            </div>
+            
+        </div>
+        <div class="card-footer d-md-flex justify-content-end gap-2">
+            <a class="btn btn-ghost-white mt-2 mb-2 shadow-none" href="/account-settings">Cancel</a>
+            <input type="button" class="btn btn-primary mt-2 mb-2" value="Save Changes" onclick="updateUserData();">
+        </div>
+    </div>
+
+
+
+    <div class="card mb-4" style="border-radius: 15px;">
+        <div class="card-header d-flex justify-content-between align-items-center bg-transparent">
+            <h6 class="card-header-title mt-2">Password</h6>
+        </div>
+        <div class="card-body">
+            <p>Edit the fields below to update your password</p>
+
+
+            <div class="row align-items-baseline">
+                <div class="col-md-4 text-muted mb-1 mb-md-0">
+                    <i class="fa-regular fa-address-card me-2"></i> Enter NEW password
+                </div>
+                <div class="col-md-8">
+                    <div class="position-relative">
+                        <input id="new-password-field" type="password" placeholder="*************" class="js-toggle-password form-control py-2" data-hs-toggle-password-options="{ &quot;target&quot;: [&quot;.js-change-password-multi-1&quot;, &quot;.js-change-password-multi-2&quot;, &quot;.js-change-password-multi-3&quot;], &quot;defaultClass&quot;: &quot;fa-eye-slash&quot;, &quot;showClass&quot;: &quot;fa-eye&quot;, &quot;classChangeTarget&quot;: &quot;#showMultiPassIcon1&quot; }" minlength="8" style="padding-right: 3rem;">
+                        <span class="content-center position-absolute top-0 py-1" title="Password Toggle" style="right: 0.3rem;">
+                            <button type="button" class="js-change-password-multi-1 btn btn-sm btn-ghost-white fs-70x shadow-none" tabindex="-1" style="width: 2rem; height: 2rem;">
+                                <i id="new-password-icon" class="far fa-fw fa-eye-slash" onclick="manageFieldVisibility(this, 'new-password-field');"></i>
+                            </button>
                         </span>
-                        <a class="btn btn-sm btn-white" style="min-width: 6rem;" href="javascript:;" data-bs-toggle="modal" data-bs-target="#showLoginHistory">
-                            <i class="far fa-eye me-1"></i> History
-                        </a>
+                    </div>
+                    <div id="divOldPass_Error" class="invalid-feedback" style="display:none;">Please enter your old password</div>
                     </div>
                 </div>
+            <hr>
+
+            <div class="row align-items-baseline">
+                <div class="col-md-4 text-muted mb-1 mb-md-0">
+                    <i class="fa-regular fa-address-card me-2"></i> Re-Confirm password
+                </div>
+                <div class="col-md-8">
+                    <div class="position-relative">
+                        <input id="confirm-password-field" type="password" placeholder="*************" class="js-toggle-password form-control py-2" data-hs-toggle-password-options="{ &quot;target&quot;: [&quot;.js-change-password-multi-1&quot;, &quot;.js-change-password-multi-2&quot;, &quot;.js-change-password-multi-3&quot;], &quot;defaultClass&quot;: &quot;fa-eye-slash&quot;, &quot;showClass&quot;: &quot;fa-eye&quot;, &quot;classChangeTarget&quot;: &quot;#showMultiPassIcon1&quot; }" minlength="8" style="padding-right: 3rem;">
+                        <span class="content-center position-absolute top-0 py-1" title="Password Toggle" style="right: 0.3rem;">
+                            <button type="button" class="js-change-password-multi-1 btn btn-sm btn-ghost-white fs-70x shadow-none" tabindex="-1" style="width: 2rem; height: 2rem;">
+                                <i id="confirm-password-icon" class="far fa-fw fa-eye-slash" onclick="manageFieldVisibility(this, 'confirm-password-field');"></i>
+                            </button>
+                        </span>
+                    </div>
+                    <div id="divOldPass_Error" class="invalid-feedback" style="display:none;">Please enter your old password</div>
+                    </div>
+                </div>
+            
+        </div>
+        <div class="card-footer d-md-flex justify-content-end gap-2">
+            <a class="btn btn-ghost-white mt-2 mb-2 shadow-none" href="/account-settings">Cancel</a>
+            <input type="button" class="btn btn-primary mt-2 mb-2" value="Save Changes" onclick="updatePassword();">
+        </div>
+    </div>
+
+
+
+    <div class="card mb-4" style="border-radius: 15px;">
+        <div class="card-header d-flex justify-content-between align-items-center bg-transparent">
+            <h6 class="card-header-title mt-2">Delete Account</h6>
+        </div>
+        <div class="card-body">
+            <h6>Are you sure you want to permanently delete your user account?</h6>
+            <p class="mt-3">Deleting your user account will also delete every API key and every user data (like wound images and wound measurements). Recovery of the above is not possible upon delete confirmation.</p>
+        </div>
+        <div class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div class="form-check mt-2 mb-2">
+                <input id="delete-account-checkbox" type="checkbox" class="form-check-input shadow-none" onchange="manageDeleteBtn();" style="cursor: pointer;">
+                <label class="form-check-label">Confirm that I want to delete my account.</label>
+            </div>
+            <div class="text-nowrap mt-2 mb-2">
+                <input id="delete-account-btn" type="submit" class="btn btn-danger" onclick="deleteUser();" disabled>
             </div>
         </div>
     </div>
+
+    
+
+{% endblock %}
+{% block scripts %}
+    <script>
+
+        function manageFieldVisibility(component, fieldId) {
+            const normalEyeClass = "fa-regular fa-eye"
+            const slashEyeClass = "fa-regular fa-eye-slash"
+
+
+            let passwordField = document.getElementById(fieldId);
+            let type = passwordField.getAttribute("type");
+            
+            if (type === "password") {
+                passwordField.setAttribute("type", "text");
+                component.className = normalEyeClass;
+            }
+            else {
+                passwordField.setAttribute("type", "password");
+                component.className = slashEyeClass;
+            }
+        }
+
+        function updatePassword() {
+            let password = document.getElementById("new-password-field").value;
+
+            if (checkPassword(password)) {
+                fetch('/update-password', {
+                    method: 'POST',
+                    body: JSON.stringify({"password": password}),
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                })
+                .then(response => manageDbUpdatedResponse(response, 'Data has been updated correctly'));  // se status === 200 show success alert, altrimenti show error alert
+            }
+            else {
+                showErrorAlert(
+                    `<div>
+                        Something went wrong while updating the password.
+                        <p>The password must respect the following parameters:</p>
+                        <ul>
+                            <li>At least 8 characters</li>
+                            <li>Different from old password</li>
+                            <li>Not empty</li>
+                        </ul>
+                    </div>
+                    `
+                );
+            }
+        }
+
+        function checkPassword(newPassword) {
+            let confirmPassword = document.getElementById("confirm-password-field").value;
+
+            if (newPassword !== "" && confirmPassword === newPassword) { return true; }
+            else { return false; }
+        }
+
+        function updateUserData() {
+            let firstName = document.getElementById("first-name-field").value;
+            let lastName = document.getElementById("last-name-field").value;
+            let email = document.getElementById("email-field").value;
+
+            fetch('/update-user-data', {
+                method: 'POST',
+                body: JSON.stringify({"first_name": firstName, "last_name": lastName, "email": email}),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            })
+            .then(response => manageDbUpdatedResponse(response, 'Data has been updated correctly'));
+        }
+
+        function manageDeleteBtn() {
+            let value = document.getElementById("delete-account-checkbox").checked;
+            let btn = document.getElementById("delete-account-btn");
+            if (value) { btn.removeAttribute("disabled"); }
+            else { btn.setAttribute("disabled", ""); }
+        }
+
+        function deleteUser() {
+            fetch('/delete-user', {
+                method: 'POST',
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            })
+            .then(response => console.log(response.status));
+        }
+
+    </script>
 {% endblock %}

@@ -1,3 +1,4 @@
+from uuid import UUID
 from pydantic import BaseModel, Field
 from typing import Tuple, List, Optional
 
@@ -35,7 +36,14 @@ class Mask(BaseModel):
         }
 
 class User(BaseModel):
+    id: Optional[UUID] = Field(exclude=True)
     first_name: str
     last_name: str
-    email: str = Field(exclude=True)
-    password: str = Field(exclude=True)
+    email: str
+    password: Optional[str] = Field(exclude=True)
+
+class APIKey(BaseModel):
+    key: str
+    user_id: UUID = Field(exclude=True)
+    plan: int
+    project_name: str

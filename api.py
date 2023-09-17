@@ -1,14 +1,17 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Security, Request, Body
 from fastapi.security import APIKeyQuery
 from fastapi.responses import RedirectResponse, StreamingResponse
-from typing import List
+from typing import List, Optional, Dict, Any
 from custom.classes import User, Wound, Mask
 from custom.responses import MultipleModelsWoundsResponse, MultipleModelsMasksResponse
 from starlette.templating import Jinja2Templates
 import models
 import database
+from custom import functions
 import functools
 
+
+MAXIMUM_API_KEYS = 3
 
 # IMPORTANTE!! --> Capire come accettare anche immagini di tipo .jpg
 
@@ -41,7 +44,7 @@ app = FastAPI(
 def protected_route(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        user = database.get_current_user()
+        user = database.get_current_user_metadata()
         if user:
             return func(*args, **kwargs)
         else:
@@ -68,7 +71,7 @@ def sign_up_get(request: Request):
     return templates.TemplateResponse("sign-up.html", {"request": request})
 
 @app.post("/sign-up", include_in_schema=False)
-def sign_up(request: Request, user: User):  # https://github.com/orgs/supabase/discussions/3491 (adding first_name, ..., to profiles when creating a new auth.user row)
+def sign_up(request: Request, user: User):
     if not database.try_sign_up(user):
         raise HTTPException(status_code=302, detail='Could not sign up')
 
@@ -87,10 +90,29 @@ def update_password_get(request: Request):
 
 @app.post("/update-password", include_in_schema=False)
 def update_password_post(request: Request, body: dict = Body(...)):
-    access_token: str = body["access_token"]
+    access_token: Optional[str] = body.get("access_token", None)
     password: str = body["password"]
-    if not database.try_update_password(access_token, password):
-        raise HTTPException(status_code=404, detail="Could not update password")
+    if not access_token:
+        if not database.try_update_password(password=password):
+            raise HTTPException(status_code=404, detail="Could not update password")
+    else:
+        if not database.try_update_password_with_token(access_token, password):
+            raise HTTPException(status_code=404, detail="Could not update password")
+
+@app.post("/update-user-data", include_in_schema=False)
+def update_user_data(request: Request, user: User):
+    if functions.check_email_regex(user.email):
+        if not database.try_update_email(user.email):
+            raise HTTPException(status_code=409, detail="There is already an account using this email")
+        if not database.try_update_profile_data(user):
+            raise HTTPException(status_code=406, detail="Could not update profile data")
+    else:
+        raise HTTPException(status_code=422, detail="Invalid email address") 
+    
+@app.post("/delete-user", include_in_schema=False)
+def delete_user(request: Request):
+    #database.try_delete_user()
+    database.generate_api_key()
 
 @app.post("/send-recovery-email", include_in_schema=False)
 def send_recovery_email(request: Request, email: str = Form(...)):
@@ -108,19 +130,38 @@ def success(request: Request):
 @app.get("/account-overview", include_in_schema=False)
 #@protected_route
 def account_overview(request: Request):
-    return templates.TemplateResponse("account-overview.html", {"request": request})
+    user = database.get_current_user()
+    if not user:
+        return RedirectResponse(url="/sign-in")
+    else:
+        return templates.TemplateResponse("account-overview.html", {"request": request, **user.dict()})
 
 @app.get("/account-settings", include_in_schema=False)
 #@protected_route
 def account_settings(request: Request):
-    return templates.TemplateResponse("account-settings.html", {"request": request})
+    user = database.get_current_user()
+    # print(database.try_sign_in(user.email, "pppp"))  # Use this in order to check if user inserted correct old password
+    if not user:
+        return RedirectResponse(url="/sign-in")
+    else:
+        return templates.TemplateResponse("account-settings.html", {"request": request, **user.dict()})
 
-@app.get("/api-keys", include_in_schema=False)
+@app.get("/account-keys", include_in_schema=False)
 #@protected_route
-def api_keys(request: Request):
-    return templates.TemplateResponse("api-keys.html", {"request": request})
-        
-
+def account_keys(request: Request):
+    api_keys, count = database.get_api_keys()
+    api_keys_dict = [key.dict() for key in api_keys]
+    print(api_keys_dict)
+    return templates.TemplateResponse("account-keys.html", {"request": request, "api_keys": api_keys_dict, "api_count": count})
+    
+@app.post("/account-keys/generate-key", include_in_schema=False)
+def insert_key(request: Request, body: dict = Body(...)):
+    project_name: str = body["project_name"]
+    if database.get_api_keys_count() < MAXIMUM_API_KEYS:
+        if not database.insert_new_api_key(project_name=project_name):
+            raise HTTPException(status_code=400, detail="Could not create a new API token")
+    else:
+        raise HTTPException(status_code=400, detail="You have reached the maximum amount of API keys (3 API keys)")
 
 
 

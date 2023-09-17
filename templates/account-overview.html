@@ -1,30 +1,21 @@
 {% extends "profile-template.html" %}
 {% block title %}Account Overview{% endblock %}
 {% block content %}
-    <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-header-title">Personal Info</h3>
+    <div class="card mb-4" style="border-radius: 15px;">
+        <div class="card-header d-flex justify-content-between align-items-center bg-transparent">
+            <h6 class="card-header-title mt-2">Personal Info</h6>
         </div>
         <div class="card-body">
             <p>Below are the username, email and overview information for your account.</p>
             <div class="row align-items-center">
                 <div class="col-md-4 text-muted mb-1 mb-md-0">
-                    <i class="far fa-user-circle fa-fw"></i> Your username:
+                    <i class="fa-regular fa-user me-2"></i> Full Name:
                 </div>
                 <div class="col-md-8">
-                    <strong>GiorgioPapini</strong>
-                </div>
-            </div>
-            <hr>
-            <div class="row align-items-center">
-                <div class="col-md-4 text-muted mb-1 mb-md-0">
-                    <i class="far fa-envelope fa-fw"></i> Your Email Address:
-                </div>
-                <div class="col-md-8">
-                    <div class="d-flex justify-content-between align-items-center my-n1">
-                        <strong>giorgio.papini04@gmail.com</strong>
-                        <a class="btn btn-sm btn-white" style="min-width: 6rem;" href="/mysettings">
-                            <i class="far fa-pen me-1"></i> Edit
+                    <div class="d-flex justify-content-between align-items-center my-n1" style="font-weight: 500;">
+                        {{first_name}} {{last_name}}
+                        <a class="btn btn-sm btn-white shadow-none" style="min-width: 6rem;" href="/account-settings">
+                            <i class="fa-regular fa-pen-to-square me-1"></i> Edit
                         </a>
                     </div>
                 </div>
@@ -32,7 +23,21 @@
             <hr>
             <div class="row align-items-center">
                 <div class="col-md-4 text-muted mb-1 mb-md-0">
-                    <i class="far fa-sign-in fa-fw"></i> Last Login:
+                    <i class="far fa-envelope fa-fw me-2"></i> Email Address:
+                </div>
+                <div class="col-md-8">
+                    <div class="d-flex justify-content-between align-items-center my-n1" style="font-weight: 500;">
+                        {{ email }}
+                        <a class="btn btn-sm btn-white shadow-none" style="min-width: 6rem;" href="/account-settings">
+                            <i class="fa-regular fa-pen-to-square me-1"></i> Edit
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row align-items-center">
+                <div class="col-md-4 text-muted mb-1 mb-md-0">
+                    <i class="far fa-sign-in fa-fw me-1"></i> Last Login:
                 </div>
                 <div class="col-md-8">
                     <div class="d-flex justify-content-between align-items-center my-n1">
