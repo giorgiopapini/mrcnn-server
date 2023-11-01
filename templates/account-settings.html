@@ -110,7 +110,25 @@
                 <label class="form-check-label">Confirm that I want to delete my account.</label>
             </div>
             <div class="text-nowrap mt-2 mb-2">
-                <input id="delete-account-btn" type="submit" class="btn btn-danger" onclick="deleteUser();" disabled>
+                <input id="delete-account-btn" type="submit" class="btn btn-danger" onclick="showAlert('warningModal', 'Are you sure you want to delete your account?');" disabled>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="warningModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="warningModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="warningModalLabel">Attention!</h5>
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container" id="warningModalMessage"></div>
+                </div>
+                <div class="modal-footer">
+                    <button id="dismiss" type="button" class="btn btn-ghost-white mt-2 mb-2 shadow-none" data-bs-dismiss="modal">Cancel</button>
+                    <button id="warningModalBtn" type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="deleteUser();">I'm sure!</button>
+                </div>
             </div>
         </div>
     </div>
@@ -120,6 +138,7 @@
 {% endblock %}
 {% block scripts %}
     <script>
+
 
         function manageFieldVisibility(component, fieldId) {
             const normalEyeClass = "fa-regular fa-eye"
@@ -204,7 +223,7 @@
                     "Content-type": "application/json; charset=UTF-8"
                 }
             })
-            .then(response => console.log(response.status));
+            .then(response => location.href = '/sign-in');
         }
 
     </script>

@@ -37,7 +37,7 @@ templates = Jinja2Templates(directory="templates")
 app = FastAPI(
     title="WoundDetector"
 )
-#models.load_mrcnn_model()
+models.load_mrcnn_model()
 
 
 # UI enpoints
@@ -111,8 +111,7 @@ def update_user_data(request: Request, user: User):
     
 @app.post("/delete-user", include_in_schema=False)
 def delete_user(request: Request):
-    #database.try_delete_user()
-    database.generate_api_key()
+    database.try_delete_user()
 
 @app.post("/send-recovery-email", include_in_schema=False)
 def send_recovery_email(request: Request, email: str = Form(...)):

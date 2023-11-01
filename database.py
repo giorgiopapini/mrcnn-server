@@ -85,18 +85,10 @@ def get_current_user() -> User:
     return User(**result)
 
 def try_delete_user():
-    #user_id: str = str(get_current_user_metadata().id)
-    #access_token: str = supabase.auth.current_session.access_token
-    #supabase.auth.api.delete_user(uid=user_id, jwt=access_token)
-
-    res = supabase.rpc("hello_world", {})
-    print(res)
-
+    user_id: str = str(get_current_user_metadata().id)
+    supabase.rpc("delete_user", {"user_id": user_id}).execute()
     # https://github.com/orgs/supabase/discussions/5208
 
-
-def generate_api_key():
-    key: str = secrets.token_urlsafe(42)
 
 @database_call
 def insert_new_api_key(project_name: str):
