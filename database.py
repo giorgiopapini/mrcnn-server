@@ -110,3 +110,23 @@ def get_api_keys() -> Tuple[List[APIKey], Optional[int]]:
     api_keys: List[APIKey] = [APIKey(**element) for element in res.data]
     return api_keys, res.count
 
+
+def api_exists(api_key: str):
+    token = supabase.table(API_KEYS_TABLE_NAME).select("*").eq("key", api_key).execute().data
+    if token:
+        return True
+    return False 
+
+def token_exceeds_calls_limit(api_key: str) -> bool:
+    api_key_plan_data = supabase.table(API_KEYS_TABLE_NAME).select("plan", "monthly_calls").eq("key", api_key).execute().data[0]
+    plan_id: int = api_key_plan_data["plan"]
+    current_calls: int = api_key_plan_data["monthly_calls"]
+    calls_limit: int = supabase.table(API_PLANS_TABLE_NAME).select("max_monthly_calls").eq("id", plan_id).execute().data[0]["max_monthly_calls"]
+
+    if (current_calls + 1) > calls_limit:
+        return True
+    return False
+
+@database_call
+def increment_calls_count(api_key: str) -> bool:
+    supabase.rpc("increment_calls_count", {"key_id": api_key}).execute()

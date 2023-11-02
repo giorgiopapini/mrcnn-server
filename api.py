@@ -168,13 +168,20 @@ def insert_key(request: Request, body: dict = Body(...)):
 api_key_query = APIKeyQuery(name="api-key", auto_error=False)
 
 def verify_api_key(api_key: str = Security(api_key_query)) -> str:
-    if api_key == '000':
-        return api_key
-
-    raise HTTPException(
-        status_code=401,
-        detail='Invalid or missing API key'
-    )
+    if database.api_exists(api_key):
+        if not database.token_exceeds_calls_limit(api_key):
+            database.increment_calls_count(api_key)
+            return api_key
+        else:
+            raise HTTPException(
+            status_code=401,
+            detail='API calls limit exceeded'   
+        )
+    else:
+        raise HTTPException(
+            status_code=401,
+            detail='Invalid or missing API key'
+        )
 
 
 @app.post("/mrcnn/mask-image/")
