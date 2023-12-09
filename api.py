@@ -38,6 +38,7 @@ app = FastAPI(
     title="WoundDetector"
 )
 models.load_mrcnn_model()
+# prova
 
 
 # UI enpoints
@@ -113,6 +114,12 @@ def update_user_data(request: Request, user: User):
 def delete_user(request: Request):
     database.try_delete_user()
 
+@app.post("/delete-api-key", include_in_schema=False)
+def delete_api_key(request: Request, body: dict = Body(...)):
+    api_key: str = body["api_key"]
+    if not database.try_delete_api_key(api_key):
+        raise HTTPException(status_code=403, detail="Could not delete the API key")
+
 @app.post("/send-recovery-email", include_in_schema=False)
 def send_recovery_email(request: Request, email: str = Form(...)):
     if not database.try_send_recovery_email(email):
@@ -139,7 +146,6 @@ def account_overview(request: Request):
 #@protected_route
 def account_settings(request: Request):
     user = database.get_current_user()
-    # print(database.try_sign_in(user.email, "pppp"))  # Use this in order to check if user inserted correct old password
     if not user:
         return RedirectResponse(url="/sign-in")
     else:
@@ -148,10 +154,10 @@ def account_settings(request: Request):
 @app.get("/account-keys", include_in_schema=False)
 #@protected_route
 def account_keys(request: Request):
+    user = database.get_current_user()
     api_keys, count = database.get_api_keys()
     api_keys_dict = [key.dict() for key in api_keys]
-    print(api_keys_dict)
-    return templates.TemplateResponse("account-keys.html", {"request": request, "api_keys": api_keys_dict, "api_count": count})
+    return templates.TemplateResponse("account-keys.html", {"request": request, "api_keys": api_keys_dict, "api_count": count, **user.dict()})
     
 @app.post("/account-keys/generate-key", include_in_schema=False)
 def insert_key(request: Request, body: dict = Body(...)):
@@ -160,7 +166,7 @@ def insert_key(request: Request, body: dict = Body(...)):
         if not database.insert_new_api_key(project_name=project_name):
             raise HTTPException(status_code=400, detail="Could not create a new API token")
     else:
-        raise HTTPException(status_code=400, detail="You have reached the maximum amount of API keys (3 API keys)")
+        raise HTTPException(status_code=400, detail=f"You have reached the maximum amount of API keys ({MAXIMUM_API_KEYS} API keys)")
 
 
 

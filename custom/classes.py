@@ -47,3 +47,4 @@ class APIKey(BaseModel):
     user_id: UUID = Field(exclude=True)
     plan: int
     project_name: str
+    monthly_calls: int

@@ -100,6 +100,14 @@ def insert_new_api_key(project_name: str):
         "user_id": str(user.id)
     }).execute()
 
+def try_delete_api_key(api_key: str) -> None:
+    user: User = get_current_user()
+    res = supabase.table(API_KEYS_TABLE_NAME).select("*").eq("user_id", user.id).eq("key", api_key).execute()
+    if res.data:
+        supabase.table(API_KEYS_TABLE_NAME).delete().eq("user_id", user.id).eq("key", api_key).execute()
+        return True
+    return False
+
 def get_api_keys_count() -> int:
     _, count = get_api_keys()
     return count if count is not None else 0
