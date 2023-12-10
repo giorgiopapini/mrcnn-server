@@ -7,11 +7,11 @@ from custom.classes import Wound
 from custom.functions import get_img_from_file, get_mask_image_from_file
 from mrcnn.mrcnn import MRCNN
 from image_resizer.image_resizer import ImageResizer
+from yolov8.yolov8 import YOLO_WRAP
 
 
-def load_mrcnn_model() -> None:
-    """Loads the model inside of the class attribute MRCNN.model, it is called before starting the uvicorn server"""
-    MRCNN.load_model()
+def load_yolov8_model() -> None:
+    YOLO_WRAP.load_model()
 
 def define_mask_manager(file, api_key: str) -> MasksManager:
     masks_manager = MasksManager(

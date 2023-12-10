@@ -37,8 +37,7 @@ templates = Jinja2Templates(directory="templates")
 app = FastAPI(
     title="WoundDetector"
 )
-models.load_mrcnn_model()
-# prova
+models.load_yolov8_model()
 
 
 # UI enpoints
