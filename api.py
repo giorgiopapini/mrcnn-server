@@ -2,10 +2,11 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Security, Re
 from fastapi.security import APIKeyQuery
 from fastapi.responses import RedirectResponse, StreamingResponse
 from typing import List, Optional, Dict, Any
-from custom.classes import User, Wound, Mask
+from custom.classes import User, Wound, Mask, CalibrationData
 from custom.responses import MultipleModelsWoundsResponse, MultipleModelsMasksResponse
 from starlette.templating import Jinja2Templates
 import models
+from calibration_tools import calibrator
 import database
 from custom import functions
 import functools
@@ -284,7 +285,7 @@ async def calculate_wounds_from_inserted_mask_image(
 ) -> List[Wound]:
     return models.get_wounds_from_mask_file(file, ratio)
 
-@app.post("/custom-mask/grabcut-mask")
+@app.post("/custom-mask/grabcut-mask/")
 async def calculate_grabcut_mask_from_custom_mask(
     api_key: str = Security(verify_api_key),
     file: UploadFile = File(...),
@@ -293,7 +294,21 @@ async def calculate_grabcut_mask_from_custom_mask(
     grabcut_mask = models.get_grabcut_from_mask(file, mask)
     return StreamingResponse(grabcut_mask.to_bytes(), media_type="image/png")
 
-# API produce le maschere, il server della WEBAPP le salva nel local storage
+@app.post("/get-camera-data/")
+async def get_camera_data(
+    api_key: str = Security(verify_api_key),
+    chessboard_columns: int = Form(...),
+    chessboard_rows: int = Form(...),
+    files: List[UploadFile] = File(...),
+) -> CalibrationData:
+    return calibrator.get_camera_data(api_key, files, (chessboard_rows-1, chessboard_columns-1))  # numero colonne vere -1, numero rige vere -1
 
-
-# https://fastapi.tiangolo.com/tutorial/query-params/
+@app.post("/get-undistorted-image/")
+async def get_undistorted_image(
+    calibration_data: UploadFile = File(...),
+    api_key: str = Security(verify_api_key),
+    image: UploadFile = File(...)
+) -> StreamingResponse:
+    data = calibration_data.file.read()
+    img_bytes = calibrator.get_undistorted_image_bytes(api_key, data, image)
+    return StreamingResponse(img_bytes, media_type="image/png")

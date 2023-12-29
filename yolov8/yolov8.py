@@ -2,7 +2,7 @@ from typing import Any
 from ultralytics import YOLO
 import numpy as np
 from image_resizer.image_resizer import ImageResizer
-import cv2
+
 
 class YOLO_WRAP:
     MODEL_PATH = "./yolov8/models/last.pt"

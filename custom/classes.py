@@ -48,3 +48,10 @@ class APIKey(BaseModel):
     plan: int
     project_name: str
     monthly_calls: int
+
+class CalibrationData(BaseModel):
+    ret: float
+    mtx: List[List[float]]
+    dist: List[List[float]]
+    rvecs: Tuple
+    tvecs: Tuple
