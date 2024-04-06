@@ -8,6 +8,7 @@ from starlette.templating import Jinja2Templates
 import models
 from calibration_tools import calibrator
 import database
+import aruco
 from custom import functions
 import functools
 
@@ -294,16 +295,7 @@ async def calculate_grabcut_mask_from_custom_mask(
     grabcut_mask = models.get_grabcut_from_mask(file, mask)
     return StreamingResponse(grabcut_mask.to_bytes(), media_type="image/png")
 
-@app.post("/get-camera-data/")
-async def get_camera_data(
-    api_key: str = Security(verify_api_key),
-    chessboard_columns: int = Form(...),
-    chessboard_rows: int = Form(...),
-    files: List[UploadFile] = File(...),
-) -> CalibrationData:
-    return calibrator.get_camera_data(api_key, files, (chessboard_rows-1, chessboard_columns-1))  # numero colonne vere -1, numero rige vere -1
-
-@app.post("/get-undistorted-image/")
+@app.post("/undistort-image/")
 async def get_undistorted_image(
     calibration_data: UploadFile = File(...),
     api_key: str = Security(verify_api_key),
@@ -312,3 +304,21 @@ async def get_undistorted_image(
     data = calibration_data.file.read()
     img_bytes = calibrator.get_undistorted_image_bytes(api_key, data, image)
     return StreamingResponse(img_bytes, media_type="image/png")
+
+@app.post("/calculate/camera-data/")
+async def get_camera_data(
+    api_key: str = Security(verify_api_key),
+    chessboard_columns: int = Form(...),
+    chessboard_rows: int = Form(...),
+    files: List[UploadFile] = File(...),
+) -> CalibrationData:
+    return calibrator.get_camera_data(api_key, files, (chessboard_rows-1, chessboard_columns-1))  # numero colonne vere -1, numero rige vere -1
+
+@app.post("/calculate/pixel-cm-ratio/")
+async def get_pixel_cm_ratio(
+    api_key: str = Security(verify_api_key),
+    aruco_perim_cm: float = Form(...),
+    image: UploadFile = File(...),
+) -> float:
+    """The Aruco Marker should be a DICT_5X5"""
+    return aruco.get_pixel_cm_ratio(aruco_perim_cm, image)
